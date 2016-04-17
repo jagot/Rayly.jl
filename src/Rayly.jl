@@ -1,5 +1,7 @@
 module Rayly
 
-# package code goes here
+include("types.jl")
+include("render.jl")
+include("utils.jl")
 
 end # module
