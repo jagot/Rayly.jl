@@ -21,7 +21,7 @@ for i = 1:10
     add!(acc, Triangle(rand_point(), rand_point(), rand_point()))
 end
 
-@time img = render(cam) do ray::Ray
+@time img = render(cam, JitteredSampler(9)) do ray::Ray
     hit = Rayly.intersect(acc, ray)
     hit != nothing ? shade(hit) : background
 end
