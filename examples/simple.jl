@@ -14,12 +14,7 @@ cam = SimpleCamera(Point{3}(0.,0,-5.0),
                    1.0, 1.0, 1.0,
                    400, 400)
 
-acc = ListAccelerator()
-rand_point() = Point{3,Float64}(2rand()-1,2rand()-1,2rand()-1)
-for i = 1:10
-    add!(acc, Sphere(rand_point(), 0.2rand()))
-    add!(acc, Triangle(rand_point(), rand_point(), rand_point()))
-end
+acc = ListAccelerator(load("scene.rsc"))
 
 @time img = render(cam, JitteredSampler(9)) do ray::Ray
     hit = Rayly.intersect(acc, ray)

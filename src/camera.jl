@@ -1,7 +1,7 @@
 abstract Camera{T}
 
 import Base.eltype
-eltype{T}(c::Camera{T}) = T
+eltype{T}(::Camera{T}) = T
 
 type SimpleCamera{T<:AbstractFloat} <: Camera{T}
     pos::Point{3,T}

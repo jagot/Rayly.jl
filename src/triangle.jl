@@ -1,6 +1,6 @@
 using FixedSizeArrays
 
-type Triangle{T<:AbstractFloat} <: Intersectable
+type Triangle{T<:AbstractFloat} <: Intersectable{T}
     o::Point{3,T}
     e1::Vec{3,T}
     e2::Vec{3,T}

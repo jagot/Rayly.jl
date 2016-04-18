@@ -1,9 +1,7 @@
 type ListAccelerator <: Accelerator
     objs::Vector{Intersectable}
-    function ListAccelerator()
-        new(Vector{Intersectable}())
-    end
 end
+ListAccelerator() = ListAccelerator(Vector{Intersectable}())
 
 add!{T<:Intersectable}(la::ListAccelerator, o::T) = push!(la.objs, o)
 

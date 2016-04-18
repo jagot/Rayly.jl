@@ -9,5 +9,6 @@ include("list_accelerator.jl")
 include("sampling.jl")
 include("render.jl")
 include("utils.jl")
+include("scene.jl")
 
 end # module

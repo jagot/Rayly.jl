@@ -1,6 +1,6 @@
 using FixedSizeArrays
 
-type Sphere{T<:AbstractFloat} <: Intersectable
+type Sphere{T<:AbstractFloat} <: Intersectable{T}
     pos::Point{3,T}
     radius::T
 end
@@ -29,4 +29,4 @@ end
 
 normal(sphere::Sphere, p::Point{3}, ::Intersection) = normalize(p-sphere.pos)
 
-export Sphere, intersect, calc_intersect, normal
+export Sphere, eltype, intersect, calc_intersect, normal
