@@ -11,7 +11,7 @@ function intersect(acc::ListAccelerator, ray::Ray)
     hits = []
     for o in acc.objs
         if intersect(o, ray)
-            push!(hits, Intersection(o, ray, calc_intersect(o, ray)))
+            push!(hits, Intersection(o, ray, calc_intersect(o, ray)...))
         end
     end
     if length(hits) > 0

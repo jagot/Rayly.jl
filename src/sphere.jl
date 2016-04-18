@@ -27,6 +27,6 @@ function calc_intersect(sphere::Sphere, ray::Ray)
     end
 end
 
-normal(sphere::Sphere, p::Point{3}) = normalize(p-sphere.pos)
+normal(sphere::Sphere, p::Point{3}, ::Intersection) = normalize(p-sphere.pos)
 
 export Sphere, intersect, calc_intersect, normal
