@@ -8,7 +8,6 @@ immutable Ray{T<:AbstractFloat}
     end
 end
 
-
 abstract Camera
 
 type SimpleCamera{T<:AbstractFloat} <: Camera
@@ -33,4 +32,6 @@ function SimpleCamera{T<:AbstractFloat}(pos::Vec{3,T},
                  w_px, h_px)
 end
 
-export Ray, SimpleCamera
+abstract Accelerator
+
+export Ray, SimpleCamera, Accelerator

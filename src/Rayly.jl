@@ -1,6 +1,9 @@
 module Rayly
 
 include("types.jl")
+include("intersectables.jl")
+include("sphere.jl")
+include("list_accelerator.jl")
 include("render.jl")
 include("utils.jl")
 
