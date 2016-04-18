@@ -5,3 +5,4 @@
 .juliahistory
 *.png
 ltxpng/
+.syncthing.*

@@ -1,7 +1,7 @@
 using FixedSizeArrays
 
 type Sphere{T<:AbstractFloat} <: Intersectable
-    pos::Vec{3,T}
+    pos::Point{3,T}
     radius::T
 end
 
@@ -27,6 +27,6 @@ function calc_intersect(sphere::Sphere, ray::Ray)
     end
 end
 
-normal(sphere::Sphere, p::Vec{3}) = normalize(p-sphere.pos)
+normal(sphere::Sphere, p::Point{3}) = normalize(p-sphere.pos)
 
 export Sphere, intersect, calc_intersect, normal
