@@ -24,4 +24,8 @@ end
 
 normal(sphere::Sphere, p::Point{3}, ::Intersection) = normalize(p-sphere.pos)
 
-export Sphere, eltype, intersect, calc_intersect, normal
+function aabb{T<:AbstractFloat}(s::Sphere{T})
+    AABB(s.pos-s.radius,s.pos+s.radius)
+end
+
+export Sphere, eltype, intersect, calc_intersect, normal, aabb

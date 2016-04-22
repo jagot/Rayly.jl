@@ -64,4 +64,11 @@ function normal(tri::Triangle, p::Point{3}, i::Intersection)
     normalize((1 - i.u - i.v)*tri.na + i.u * tri.nb + i.v * tri.nc)
 end
 
-export Triangle, intersect, calc_intersect, normal
+vertices(tri::Triangle) = (tri.o, tri.o + tri.e1, tri.o + tri.e2)
+
+function aabb{T<:AbstractFloat}(t::Triangle{T})
+    a,b,c = vertices(t)
+    min(min(a,b),c), max(max(a,b),c)
+end
+
+export Triangle, intersect, calc_intersect, normal, aabb
