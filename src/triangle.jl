@@ -19,6 +19,30 @@ Triangle(a::Point, b::Point, c::Point,
                                  normal)
 Triangle(a::Point, b::Point, c::Point) = Triangle(a,b,c, cross(b-a,c-a))
 
+function add_tris!{A<:Accelerator, T<:AbstractFloat}(acc::A,
+                                                     vertices::Vector{Point{3,T}},
+                                                     faces::Vector{Tuple})
+    for face in faces
+        add!(acc, Triangle(vertices[face[1]],
+                           vertices[face[2]],
+                           vertices[face[3]]))
+    end
+end
+
+function add_tris!{A<:Accelerator, T<:AbstractFloat}(acc::A,
+                                                     vertices::Vector{Point{3,T}},
+                                                     normals::Vector{Vec{3,T}},
+                                                     faces::Vector{Tuple})
+    for face in faces
+        add!(acc, Triangle(vertices[face[1]],
+                           vertices[face[2]],
+                           vertices[face[3]],
+                           normals[face[1]],
+                           normals[face[2]],
+                           normals[face[3]]))
+    end
+end
+
 #=
 Tomas Möller & Ben Trumbore (1997). Fast, minimum
 storage ray-triangle intersection. Journal of Graphics Tools, 2(1),
@@ -71,4 +95,4 @@ function aabb{T<:AbstractFloat}(t::Triangle{T})
     min(min(a,b),c), max(max(a,b),c)
 end
 
-export Triangle, intersect, calc_intersect, normal, aabb
+export Triangle, add_tris!, intersect, calc_intersect, normal, aabb
