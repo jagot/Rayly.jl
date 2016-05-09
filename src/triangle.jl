@@ -92,7 +92,7 @@ vertices(tri::Triangle) = (tri.o, tri.o + tri.e1, tri.o + tri.e2)
 
 function aabb{T<:AbstractFloat}(t::Triangle{T})
     a,b,c = vertices(t)
-    min(min(a,b),c), max(max(a,b),c)
+    AABB(min(min(a,b),c), max(max(a,b),c))
 end
 
 export Triangle, add_tris!, intersect, calc_intersect, normal, aabb
