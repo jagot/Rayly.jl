@@ -17,8 +17,9 @@ cam = SimpleCamera(Point{3}(0.,0,-5.0),
 acc = ListAccelerator(load("scene.rsc"))
 
 @time img = render(cam, JitteredSampler(9)) do ray::Ray
-    hit = Rayly.intersect(acc, ray)
-    hit != nothing ? shade(hit) : background
+    hit = Intersection(ray)
+    Rayly.intersect!(acc, hit)
+    !isnull(hit.o) ? shade(hit) : background
 end
 
 save_clamped("simple.png", img)
