@@ -20,3 +20,5 @@ function intersect(ab::AABB, ray::Ray)
     end
     true
 end
+
+export AABB, intersect
