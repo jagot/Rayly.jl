@@ -4,11 +4,11 @@ end
 ListAccelerator() = ListAccelerator(Vector{Intersectable}())
 
 function intersect(acc::ListAccelerator, ray::Ray)
-    hits = []
+    intersection = Intersection(ray)
     for o in acc.objs
-        intersect(o, ray) && push!(hits, Intersection(o, ray, calc_intersect(o, ray)...))
+        intersect!(o, intersection)
     end
-    length(hits) > 0 ? first(sort(hits)) : nothing
+    intersection
 end
 
 export ListAccelerator, intersect

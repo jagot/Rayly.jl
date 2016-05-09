@@ -67,21 +67,33 @@ function intersect(tri::Triangle, ray::Ray)
     true
 end
 
-function calc_intersect(tri::Triangle, ray::Ray)
-    p = cross(ray.dir, tri.e2)
+function intersect!(tri::Triangle, i::Intersection)
+    p = cross(i.ray.dir, tri.e2)
     det = dot(tri.e1, p)
 
-    inv_det = one(det)/det
+    (det < eltype(tri.o)(1e-6)) && return
 
-    tv = ray.pos - tri.o
+    tv = i.ray.pos - tri.o
+
+    u = dot(tv, p)
+
+    (u < 0 || u > det) && return
 
     q = cross(tv, tri.e1)
+    v = dot(i.ray.dir, q)
+    (v < 0 || u+v > det) && return
 
+    inv_det = one(det)/det
     t = dot(tri.e2, q) * inv_det
-    u = dot(tv, p) * inv_det
-    v = dot(ray.dir, q) * inv_det
+    (t > i.t) && return
 
-    t,u,v
+    u *= inv_det
+    v *= inv_det
+
+    i.o = Nullable{Intersectable{eltype(tri.o)}}(tri)
+    i.t = t
+    i.u = u
+    i.v = v
 end
 
 function normal(tri::Triangle, p::Point{3}, i::Intersection)
@@ -95,4 +107,4 @@ function aabb{T<:AbstractFloat}(t::Triangle{T})
     AABB(min(min(a,b),c), max(max(a,b),c))
 end
 
-export Triangle, add_tris!, intersect, calc_intersect, normal, aabb
+export Triangle, add_tris!, intersect, intersect!, normal, aabb

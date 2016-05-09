@@ -15,11 +15,15 @@ function intersect(sphere::Sphere, ray::Ray)
     loc^2 - dot(oc, oc) + sphere.radius^2 >= 0
 end
 
-function calc_intersect(sphere::Sphere, ray::Ray)
-    oc = ray.pos - sphere.pos
-    loc = dot(ray.dir, oc)
+function intersect!(sphere::Sphere, i::Intersection)
+    oc = i.ray.pos - sphere.pos
+    loc = dot(i.ray.dir, oc)
     D = loc^2 - dot(oc, oc) + sphere.radius^2
-    D != 0 ? -loc + sign(loc)*sqrt(D) : -loc
+    (D < 0) && return
+    t = D != 0 ? -loc + sign(loc)*sqrt(D) : -loc
+    (t > i.t) && return
+    i.o = Nullable{Intersectable{eltype(sphere.pos)}}(sphere)
+    i.t = t
 end
 
 normal(sphere::Sphere, p::Point{3}, ::Intersection) = normalize(p-sphere.pos)

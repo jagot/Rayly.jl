@@ -2,6 +2,7 @@ module Rayly
 
 include("types.jl")
 include("intersectables.jl")
+include("intersection.jl")
 include("aabb.jl")
 include("sphere.jl")
 include("triangle.jl")
