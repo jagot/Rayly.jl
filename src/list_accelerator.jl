@@ -3,8 +3,6 @@ type ListAccelerator <: Accelerator
 end
 ListAccelerator() = ListAccelerator(Vector{Intersectable}())
 
-add!{T<:Intersectable}(la::ListAccelerator, o::T) = push!(la.objs, o)
-
 function intersect(acc::ListAccelerator, ray::Ray)
     hits = []
     for o in acc.objs
@@ -13,4 +11,4 @@ function intersect(acc::ListAccelerator, ray::Ray)
     length(hits) > 0 ? first(sort(hits)) : nothing
 end
 
-export ListAccelerator, add!, intersect
+export ListAccelerator, intersect
