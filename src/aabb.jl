@@ -4,7 +4,10 @@ type AABB{T<:AbstractFloat} <: Intersectable{T}
     pmin::Point{3,T}
     pmax::Point{3,T}
 end
+AABB{T<:AbstractFloat}(t::T) = AABB(Point{3,T}(t),Point{3,T}(t))
 AABB(a::AABB, b::AABB) = AABB(min(a.pmin, b.pmin), max(a.pmax,b.pmax))
+
+center(a::AABB) = (a.pmin+a.pmax)/2
 
 # http://psgraphics.blogspot.se/2016/02/new-simple-ray-box-test-from-andrew.html
 function intersect(ab::AABB, ray::Ray)
@@ -22,4 +25,4 @@ function intersect(ab::AABB, ray::Ray)
     true
 end
 
-export AABB, intersect
+export AABB, intersect, center
