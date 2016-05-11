@@ -6,6 +6,15 @@ type AABB{T<:AbstractFloat} <: Intersectable{T}
 end
 AABB{T<:AbstractFloat}(t::T) = AABB(Point{3,T}(t),Point{3,T}(t))
 AABB(a::AABB, b::AABB) = AABB(min(a.pmin, b.pmin), max(a.pmax,b.pmax))
+function AABB{T<:AbstractFloat}(bboxes::AbstractVector{AABB{T}})
+    # Calculate bbox encompassing all objects
+    bbox = AABB(zero(T))
+    for b in bboxes
+        bbox = AABB(bbox, b)
+    end
+    bbox
+end
+AABB{T<:AbstractFloat}(objs::AbstractVector{Intersectable{T}}) = AABB(map(aabb, objs))
 
 center(a::AABB) = (a.pmin+a.pmax)/2
 
