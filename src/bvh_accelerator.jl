@@ -1,14 +1,13 @@
 abstract BVHAccelerator <: Accelerator
 
-type SimpleBVHAccelerator <: BVHAccelerator
+type StackBVHAccelerator <: BVHAccelerator
     bvh::BVH
 end
 
-function intersect(acc::SimpleBVHAccelerator, ray::Ray)
-    false
+function intersect(acc::StackBVHAccelerator, ray::Ray)
+    tree = acc.bvh.tree
+    node = acc.bvh.root
+    intersect(node, tree, ray)
 end
 
-function intersect!(acc::SimpleBVHAccelerator, intersection::Intersection)
-end
-
-export SimpleBVHAccelerator, intersect
+export StackBVHAccelerator, intersect
