@@ -4,7 +4,7 @@ using ProgressMeter
 
 function render{C<:Camera}(f::Function, cam::C, sampler = SingleSampler())
     w,h = width(cam),height(cam)
-    img = Image(zeros(RGB{eltype(cam)}, (w,h)))
+    img = zeros(RGB{eltype(cam)}, (w,h))
 
     @showprogress "Rendering: " for i = 1:w
         for j = 1:h
