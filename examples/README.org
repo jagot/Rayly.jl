@@ -1,0 +1,135 @@
+#+TITLE: Rayly.jl examples
+
+* Simple usage example
+  [[file:simple.png]]
+
+  First we load the necessary packages:
+  #+BEGIN_SRC julia :exports code :session *julia-simple*
+    using Rayly, FixedSizeArrays, ColorTypes, Images
+  #+END_SRC
+
+  #+RESULTS:
+  : nothing
+
+  We then define a simple shader, which calculates the scalar product
+  between the camera ray and the surface normal, and a background
+  colour that is used if the ray does not hit any object in the scene:
+  #+BEGIN_SRC julia :exports code :session *julia-simple*
+    function shade(i::Intersection)
+        f = abs(dot(normal(i), i.ray.dir))
+        RGB(f,f,f)
+    end
+
+    background = RGB(0.,0,0)
+  #+END_SRC
+
+  #+RESULTS:
+  | RGB{Float64}(0.0 | 0.0 | 0.0) |
+
+  We place the camera at (x,y,z) = (0,0,-5) and load a previously
+  generated scene (see [[file:scene.rsc]]):
+  #+BEGIN_SRC julia :exports code :session *julia-simple*
+    cam = SimpleCamera(Point{3}(0.,0,-5.0), # Position
+                       Vec{3}(0.,1,0), # Up vector
+                       Vec{3}(0.,0,1), # Forward vector
+                       1.0, 1.0, 1.0, # Width, height, distance to image plane
+                       400, 400) # 400 x 400 pixels
+
+    acc = ListAccelerator(load("scene.rsc"))
+  #+END_SRC
+
+  #+RESULTS:
+
+  Finally, for each generated ray from the camera, we intersect the
+  scene and shade as necessary, saving the result to a PNG image:
+  #+BEGIN_SRC julia :exports code :session *julia-simple*
+    @time img = render(cam, JitteredSampler(9)) do ray::Ray
+        hit = Intersection(ray)
+        Rayly.intersect!(acc, hit)
+        !isnull(hit.o) ? shade(hit) : background
+    end
+
+    save_clamped("simple.png", img)
+  #+END_SRC
+
+* Pixel supersampling
+  To remove the artefacts known as aliasing, we supersample the pixels
+  in a random (jittered) fashion (for more information, see
+  [[https://en.wikipedia.org/wiki/Supersampling][Wikipedia]]).
+
+  As above, we first load the necessary packages:
+  #+BEGIN_SRC julia :exports code :session *julia-sampling*
+    using Rayly, FixedSizeArrays, ColorTypes, Images
+  #+END_SRC
+
+  We set up a low-resolution camera and a single triangle:
+  #+BEGIN_SRC julia :exports code :session *julia-sampling*
+    cam = SimpleCamera(Point{3}(0.,0,-5.0), # Position
+                       Vec{3}(0.,1,0), # Up vector
+                       Vec{3}(0.,0,1), # Forward vector
+                       1.0, 1.0, 1.0, # Width, height, distance to image plane
+                       40, 40) # 40 x 40 pixels
+
+    tri = Triangle(Point{3}(0.0, 1, 0),
+                   Point{3}(1., -1, 0),
+                   Point{3}(-1., -1, 0))
+  #+END_SRC
+
+  #+RESULTS:
+  | Rayly.Triangle{Float64}(Point(0.0 | 1.0 | 0.0) | Vec(1.0 | -2.0 | 0.0) | Vec(-1.0 | -2.0 | 0.0) | Vec(0.0 | -0.0 | -4.0) | Vec(0.0 | -0.0 | -4.0) | Vec(0.0 | -0.0 | -4.0)) |
+
+  We then render the image three times, using different samplers:
+  #+BEGIN_SRC julia :exports code :session *julia-sampling*
+    samplers = [SingleSampler(), JitteredSampler(4), JitteredSampler(100)]
+    
+    imgs = map(samplers) do sampler
+        render(cam, sampler) do ray::Ray
+            hit = Intersection(ray)
+            Rayly.intersect!(tri, hit)
+            !isnull(hit.o) ? RGB(1.,1,1) : RGB(0.,0,0)
+        end
+    end
+  #+END_SRC
+
+  #+RESULTS:
+  : nothing
+  
+  #+BEGIN_SRC julia :exports none :session *julia-sampling*
+    using PyPlot
+    MultipleLocator = matplotlib[:ticker][:MultipleLocator]
+
+    function test_sampling(sampler)
+        i,j = 10.,9.
+        samples = sampler(i,j)
+        nsamples = length(samples)
+        x,y = zip(samples...)
+        plot(x,y, ".")
+        axis([i-0.5,i+0.5,j-0.5,j+0.5])
+        for ax in [:xaxis,:yaxis]
+            gca()[ax][:set_major_locator](MultipleLocator(1))
+            nsamples > 1 && gca()[ax][:set_minor_locator](MultipleLocator(1.0/sqrt(nsamples)))
+        end
+        grid(which="major", linewidth=1.0)
+        nsamples > 1 && grid(which="minor", linewidth=0.5)
+        println((nsamples,1.0/sqrt(nsamples)))
+        title(nsamples == 1 ? "Single sample" : "$(nsamples) jittered samples")
+    end
+
+    figure(1,figsize=(6,4))
+    clf()
+    for (j,sampler) in enumerate(samplers)
+        subplot(2,length(samplers),j)
+        test_sampling(sampler)
+        j > 1 && gca()[:set_yticklabels]([])
+        subplot(2,length(samplers),length(samplers)+j)
+        pcolormesh(channelview(imgs[j])[1,:,:],vmin=0,vmax=1,cmap=get_cmap("gray"))
+        j > 1 && gca()[:set_yticklabels]([])
+    end
+    tight_layout()
+    savefig("sampling.png", dpi=200)
+  #+END_SRC
+
+  #+RESULTS:
+  : nothing
+  
+  [[file:sampling.png]]

@@ -60,8 +60,8 @@ function load(s::Stream{format"RSC"})
     objs = Vector{Intersectable}()
     for line in eachline(stream(s))
         d = split(strip(line))
-        P = eval(symbol(d[1]))
-        T = eval(symbol(d[2]))
+        P = eval(Symbol(d[1]))
+        T = eval(Symbol(d[2]))
         push!(objs, read_primitive(P{T}, d[3:end]...))
     end
     objs

@@ -1,5 +1,6 @@
 using Images
 
-save_clamped(filename::AbstractString, img::Image) = save(filename, map(Clamp(eltype(data(img))), img))
+save_clamped(filename::AbstractString, img::AbstractMatrix) =
+    save(filename, map(clamp01, img))
 
 export save_clamped
