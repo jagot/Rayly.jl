@@ -1,0 +1,52 @@
+#+TITLE: Rayly.jl examples
+
+* Simple usage example
+  [[/examples/simple.png]]
+
+  First we load the necessary packages:
+  #+BEGIN_SRC julia
+    using Rayly, FixedSizeArrays, ColorTypes
+    using Images
+  #+END_SRC
+
+  We then define a simple shader, which calculates the scalar product
+  between the camera ray and the surface normal, and a background
+  colour that is used if the ray does not hit any object in the scene:
+  #+BEGIN_SRC julia
+    function shade(i::Intersection)
+        f = abs(dot(normal(i), i.ray.dir))
+        RGB(f,f,f)
+    end
+
+    background = RGB(0.,0,0)
+  #+END_SRC
+
+  We place the camera at (x,y,z) = (0,0,-5) and load a previously
+  generated scene (see [[file:scene.rsc]]):
+  #+BEGIN_SRC julia
+    cam = SimpleCamera(Point{3}(0.,0,-5.0),
+                       Vec{3}(0.,1,0),
+                       Vec{3}(0.,0,1),
+                       1.0, 1.0, 1.0,
+                       400, 400)
+
+    acc = ListAccelerator(load("scene.rsc"))
+  #+END_SRC
+
+  Finally, for each generated ray from the camera, we intersect the
+  scene and shade as necessary, saving the result to a PNG image:
+  #+BEGIN_SRC julia
+    @time img = render(cam, JitteredSampler(9)) do ray::Ray
+        hit = Intersection(ray)
+        Rayly.intersect!(acc, hit)
+        !isnull(hit.o) ? shade(hit) : background
+    end
+
+    save_clamped("simple.png", img)
+  #+END_SRC
+
+* Pixel supersampling
+  To remove the artefacts known as aliasing, we supersample the pixels
+  in a random (jittered) fashion:
+  [[/examples/sampling.png]]
+  For more information, see [[https://en.wikipedia.org/wiki/Supersampling][Wikipedia]].
