@@ -3,16 +3,16 @@ function divide{T<:AbstractFloat,IT<:Integer}(tree::Tree{T},
                                               bboxes::Vector{AABB{T}},
                                               centroids::Vector{Point{3,T}},
                                               indices::Vector{IT},
-                                              I::UnitRange{IT},
+                                              I::AbstractUnitRange{IT},
                                               axis::IT)
     # Calculate bbox encompassing all objects
-    bbox = AABB(sub(bboxes, I))
+    bbox = AABB(view(bboxes, I))
 
     if length(I) <= 2 # A better SAH is needed
-        return add_leaf_node!(tree, sub(objs, I), bbox)
+        return add_leaf_node!(tree, view(objs, I), bbox)
     end
 
-    sort!(sub(indices, I), by = i -> centroids[i][axis])
+    sort!(view(indices, I), by = i -> centroids[i][axis])
     m = round(IT, mean(I))
 
     axis += 1
