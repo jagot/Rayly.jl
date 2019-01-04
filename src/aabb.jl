@@ -7,7 +7,7 @@ AABB(t::T) where T = AABB(SVector(t,t,t),SVector(t,t,t))
 AABB(a::AABB{T}, b::AABB{T}) where T =
     AABB(compmin(a.pmin,b.pmin), compmax(a.pmax,b.pmax))
 
-function AABB(bboxes::Vector{AABB{T}}) where T
+function AABB(bboxes::VA) where {T,VA<:AbstractVector{AABB{T}}}
     # Calculate bbox encompassing all objects
     bbox = AABB(zero(T))
     for b in bboxes
@@ -15,7 +15,7 @@ function AABB(bboxes::Vector{AABB{T}}) where T
     end
     bbox
 end
-AABB(objs::Vector{Intersectable{T}}) where T = AABB(map(aabb, objs))
+AABB(objs::AbstractVector{Intersectable{T}}) where T = AABB(map(aabb, objs))
 
 center(a::AABB) = (a.pmin+a.pmax)/2
 
@@ -35,4 +35,4 @@ function Base.intersect(ray::Ray{T}, ab::AABB{T}) where T
     true
 end
 
-export AABB, intersect, center
+export AABB, center

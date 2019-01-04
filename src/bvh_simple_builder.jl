@@ -1,32 +1,30 @@
-function divide{T<:AbstractFloat,IT<:Integer}(tree::Tree{T},
-                                              objs::Vector{Intersectable{T}},
-                                              bboxes::Vector{AABB{T}},
-                                              centroids::Vector{Point{3,T}},
-                                              indices::Vector{IT},
-                                              I::AbstractUnitRange{IT},
-                                              axis::IT)
+function divide(tree::Tree,
+                objs::Vector{Intersectable{T}},
+                bboxes::Vector{AABB{T}},
+                centroids::Vector{SVector{3,T}},
+                indices::Vector{I},
+                selection::UR,
+                axis::I) where {T<:AbstractFloat,Tree<:AbstractTree{T},
+                                I<:Integer,UR<:AbstractUnitRange{I}}
     # Calculate bbox encompassing all objects
-    bbox = AABB(view(bboxes, I))
+    bbox = AABB(view(bboxes, selection))
 
-    if length(I) <= 2 # A better SAH is needed
-        return add_leaf_node!(tree, view(objs, I), bbox)
-    end
+    # A better SAH is needed
+    length(selection) <= 2 && return add_leaf_node!(tree, view(objs, selection), bbox)
 
-    sort!(view(indices, I), by = i -> centroids[i][axis])
-    m = round(IT, mean(I))
+    sort!(view(indices, selection), by = i -> centroids[i][axis])
+    m = round(I, mean(selection))
 
-    axis += 1
-    axis == 4 && (axis = 1)
+    (axis += 1) == 4 && (axis = 1)
 
-    left = divide(tree, objs, bboxes, centroids, indices, I[1]:m, axis)
-    right = divide(tree, objs, bboxes, centroids, indices, m+1:I[end], axis)
+    left = divide(tree, objs, bboxes, centroids, indices, selection[1]:m, axis)
+    right = divide(tree, objs, bboxes, centroids, indices, m+1:selection[end], axis)
 
     add_binary_node!(tree, left, right)
 end
 
-function bvh_simple_build{T<:AbstractFloat,TT<:Tree}(objs::Vector{Intersectable{T}},
-                                                     tree_type::Type{TT} = IntTree{T})
-    tree = tree_type()
+function bvh_simple_build(::Type{Tree}, objs::Vector{Intersectable{T}}) where {T<:AbstractFloat,Tree<:AbstractTree{T}}
+    tree = Tree()
     bboxes = map(aabb, objs)
     centroids = map(center, bboxes)
     root = get(tree, divide(tree, objs, bboxes, centroids,

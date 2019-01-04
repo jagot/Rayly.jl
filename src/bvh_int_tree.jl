@@ -1,18 +1,18 @@
-import Base: get
-
 # This type keeps track of parents/siblings using integer indices
-abstract IntNode{T<:AbstractFloat} <: Node{T}
+abstract type IntNode{T} <: AbstractNode{T} end
 
-type IntTree{T<:AbstractFloat} <: Tree{T}
+struct IntTree{T} <: AbstractTree{T}
     nodes::Vector{IntNode{T}}
-    IntTree() = new(Vector{IntNode{T}}())
 end
-get(tree::IntTree, node::Int) = tree.nodes[node]
+IntTree{T}() where T = IntTree{T}(Vector{IntNode{T}}())
+IntTree(::Type{T}) where T = IntTree{T}()
 
-parent(n::Node, t::IntTree) = t.nodes[n.parent]
-sibling(n::Node, t::IntTree) = t.nodes[n.sibling]
+Base.get(tree::IntTree, node::Int) = tree.nodes[node]
 
-type BinaryIntNode{T<:AbstractFloat} <: IntNode{T}
+parent(n::IntNode, t::IntTree) = t.nodes[n.parent]
+sibling(n::IntNode, t::IntTree) = t.nodes[n.sibling]
+
+mutable struct BinaryIntNode{T} <: IntNode{T}
     left::Int
     right::Int
     parent::Int
@@ -21,18 +21,20 @@ type BinaryIntNode{T<:AbstractFloat} <: IntNode{T}
     bbox::AABB{T}
 end
 
-function intersect{T<:AbstractFloat}(n::BinaryIntNode{T}, tree::IntTree{T}, ray::Ray{T})
-    left = intersect(tree.nodes[n.left].bbox, ray)
-    right = intersect(tree.nodes[n.right].bbox, ray)
-    if left || right
-        intersect(tree.nodes[n.left], tree, ray) ||
-            intersect(tree.nodes[n.right], tree, ray)
-    else
-        false
-    end
+function Base.intersect(ray::Ray{T}, n::BinaryIntNode{T}, tree::IntTree{T}) where T
+    left = intersect(ray, tree.nodes[n.left].bbox)
+    right = intersect(ray, tree.nodes[n.right].bbox)
+    (left || right) && (left && intersect(ray, tree.nodes[n.left], tree) ||
+                      right && intersect(ray, tree.nodes[n.right], tree))
 end
 
-function add_binary_node!{T<:AbstractFloat}(tree::IntTree{T}, left::Int, right::Int)
+function Base.intersect!(intersection::Intersection{T}, n::BinaryIntNode{T}, tree::IntTree{T}) where T
+    intersect(intersection.ray, tree.nodes[n].bbox) || return
+    intersect!(intersection, tree.nodes[n.left])
+    intersect!(intersection, tree.nodes[n.right])
+end
+
+function add_binary_node!(tree::IntTree{T}, left::Int, right::Int) where T
     lnode = tree.nodes[left]
     rnode = tree.nodes[right]
     bbox = AABB(aabb(lnode), aabb(rnode))
@@ -43,7 +45,7 @@ function add_binary_node!{T<:AbstractFloat}(tree::IntTree{T}, left::Int, right::
     lnode.parent = rnode.parent = length(tree.nodes)
 end
 
-type LeafIntNode{T<:AbstractFloat} <: IntNode{T}
+mutable struct LeafIntNode{T} <: IntNode{T}
     objs::Vector{Intersectable{T}}
     parent::Int
     sibling::Int
@@ -51,26 +53,20 @@ type LeafIntNode{T<:AbstractFloat} <: IntNode{T}
     bbox::AABB{T}
 end
 
-function intersect{T<:AbstractFloat}(n::LeafIntNode{T}, tree::IntTree{T}, ray::Ray{T})
-    for i in eachindex(n.objs)
-        intersect(n.objs[i], ray) && return true
-    end
-    false
-end
+Base.intersect(ray::Ray{T}, n::LeafIntNode{T}, tree::IntTree{T}) where T =
+    any(o -> intersect(ray, o), n.objs)
 
-function add_leaf_node!{T<:AbstractFloat}(tree::IntTree{T},
-                                          objs::AbstractVector{Intersectable{T}},
-                                          bbox::AABB{T})
+function add_leaf_node!(tree::IntTree{T},
+                        objs::AbstractVector{Intersectable{T}},
+                        bbox::AABB{T}) where T
     node = LeafIntNode(objs[:], 0, 0, bbox)
     push!(tree.nodes, node)
     length(tree.nodes)
 end
 
-# Necessary?
-add_leaf_node!(tree::Tree, objs::Vector{Intersectable}) =
-    add_leaf_node!(tree, objs, bbox, AABB(objs))
-
 is_inner(::BinaryIntNode) = true
 is_leaf(::BinaryIntNode) = false
 is_inner(::LeafIntNode) = false
 is_leaf(::LeafIntNode) = true
+
+export IntTree

@@ -9,4 +9,4 @@ Base.intersect(ray::Ray{T}, acc::ListAccelerator{T}) where T =
 Base.intersect!(intersection::Intersection{T}, acc::ListAccelerator{T}) where T =
     foreach(o -> intersect!(intersection, o), acc.objs)
 
-export ListAccelerator, intersect, intersect!
+export ListAccelerator

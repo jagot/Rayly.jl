@@ -1,13 +1,10 @@
-import Images: parent
+abstract type AbstractNode{T<:AbstractFloat} <: Intersectable{T} end
+abstract type AbstractTree{T<:AbstractFloat} end
 
-abstract Node{T<:AbstractFloat} <: Intersectable{T}
-
-abstract Tree{T}
-
-type BVH{T<:AbstractFloat}
-    tree::Tree{T}
-    root
+mutable struct BVH{T,Tree<:AbstractTree{T},N<:AbstractNode{T}}
+    tree::Tree
+    root::N
 end
 
-aabb(n::Node) = n.bbox
-intersect(n::Node, ray::Ray) = intersect(n.bbox, ray)
+aabb(n::N) where {N<:AbstractNode} = n.bbox
+Base.intersect(ray::Ray{T}, n::N) where {T,N<:AbstractNode{T}} = intersect(ray, n.bbox)

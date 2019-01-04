@@ -2,7 +2,8 @@ module Rayly
 
 using LinearAlgebra
 using StaticArrays
-using Images, ColorTypes
+using Statistics
+using ColorTypes
 using ProgressMeter
 using FileIO
 using Images
@@ -41,5 +42,9 @@ include("sampling.jl")
 include("render.jl")
 include("utils.jl")
 include("scene.jl")
+
+# Default BVH builder is bvh_simple_build
+Base.convert(::Type{Tree}, objs::Vector{Intersectable{T}}) where {T,Tree<:AbstractTree{T}} =
+    bvh_simple_build(Tree, objs)
 
 end # module

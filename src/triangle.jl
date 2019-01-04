@@ -98,4 +98,4 @@ function aabb(t::Triangle{T}) where T
     AABB(compmin(compmin(a,b),c), compmax(compmax(a,b),c))
 end
 
-export Triangle, add_tris!, intersect, intersect!, normal, aabb
+export Triangle, add_tris!, normal, aabb

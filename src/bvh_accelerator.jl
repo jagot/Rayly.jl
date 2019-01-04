@@ -1,13 +1,21 @@
-abstract BVHAccelerator <: Accelerator
+abstract type BVHAccelerator{T,B<:BVH{T}} <: Accelerator{T} end
 
-type StackBVHAccelerator <: BVHAccelerator
-    bvh::BVH
+struct StackBVHAccelerator{T,B} <: BVHAccelerator{T,B}
+    bvh::B
 end
+StackBVHAccelerator(bvh::B) where {T,B<:BVH{T}} =
+    StackBVHAccelerator{T,B}(bvh)
 
-function intersect(acc::StackBVHAccelerator, ray::Ray)
+function Base.intersect(ray::Ray{T}, acc::StackBVHAccelerator{T}) where T
     tree = acc.bvh.tree
     node = acc.bvh.root
-    intersect(node, tree, ray)
+    intersect(ray, node, tree)
 end
 
-export StackBVHAccelerator, intersect
+function Base.intersect!(intersection::Intersection{T}, acc::StackBVHAccelerator{T}) where T
+    tree = acc.bvh.tree
+    node = acc.bvh.root
+    intersect!(intersection, node, tree)
+end
+
+export StackBVHAccelerator

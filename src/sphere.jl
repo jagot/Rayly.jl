@@ -29,4 +29,4 @@ normal(sphere::Sphere{T}, p::SVector{3,T}, ::Intersection{T}) where T =
 
 aabb(s::Sphere{T}) where T = AABB{T}(s.pos-s.radius,s.pos+s.radius)
 
-export Sphere, eltype, intersect, calc_intersect, normal, aabb
+export Sphere, normal, aabb
