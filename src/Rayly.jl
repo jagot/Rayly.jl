@@ -1,6 +1,29 @@
 module Rayly
 
-include("types.jl")
+using LinearAlgebra
+using StaticArrays
+using Images, ColorTypes
+using ProgressMeter
+using FileIO
+using Images
+
+for (n,f) in [(:compmin, :min), (:compmax, :max)]
+    @eval $n(a::SVector{3,T}, b::SVector{3,T}) where T =
+        SVector{3,T}($f(a[1], b[1]), $f(a[2], b[2]), $f(a[3], b[3]))
+end
+
+
+struct Ray{T<:AbstractFloat}
+    pos::SVector{3,T}
+    dir::SVector{3,T}
+    Ray(pos::SVector{3,T}, dir::SVector{3,T}) where T =
+        new{T}(pos, normalize(dir))
+end
+
+abstract type Accelerator{T<:AbstractFloat} end
+
+export Ray, Accelerator
+
 include("intersectables.jl")
 include("intersection.jl")
 include("aabb.jl")
