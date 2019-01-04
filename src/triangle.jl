@@ -1,45 +1,37 @@
-using FixedSizeArrays
-
-type Triangle{T<:AbstractFloat} <: Intersectable{T}
-    o::Point{3,T}
-    e1::Vec{3,T}
-    e2::Vec{3,T}
-    na::Vec{3,T}
-    nb::Vec{3,T}
-    nc::Vec{3,T}
+mutable struct Triangle{T} <: Intersectable{T}
+    o::SVector{3,T}
+    e₁::SVector{3,T}
+    e₂::SVector{3,T}
+    na::SVector{3,T}
+    nb::SVector{3,T}
+    nc::SVector{3,T}
 end
 
-Triangle(a::Point, b::Point, c::Point,
-         na::Vec, nb::Vec, nc::Vec) = Triangle(a, b-a, c-a,
-                                               na, nb, nc)
-Triangle(a::Point, b::Point, c::Point,
-         normal::Vec) = Triangle(a, b, c,
-                                 normal,
-                                 normal,
-                                 normal)
-Triangle(a::Point, b::Point, c::Point) = Triangle(a,b,c, cross(b-a,c-a))
+Triangle(ABC::NTuple{3,SVector{3,T}}, normals::NTuple{3,SVector{3,T}}) where T=
+    Triangle(ABC[1], ABC[2]-ABC[1], ABC[3]-ABC[1], normals...)
 
-function add_tris!{A<:Accelerator, T<:AbstractFloat}(acc::A,
-                                                     vertices::Vector{Point{3,T}},
-                                                     faces::Vector{Tuple})
+Triangle(ABC::NTuple{3,SVector{3,T}},
+         normal::SVector{3,T}=cross(ABC[2]-ABC[1], ABC[3]-ABC[1])) where T =
+             Triangle(ABC, (normal, normal, normal))
+
+function add_tris!(fun::Function, acc::A, faces::Vector{NTuple{3}}) where {A<:Accelerator}
     for face in faces
-        add!(acc, Triangle(vertices[face[1]],
-                           vertices[face[2]],
-                           vertices[face[3]]))
+        add!(acc, fun(face...))
     end
 end
 
-function add_tris!{A<:Accelerator, T<:AbstractFloat}(acc::A,
-                                                     vertices::Vector{Point{3,T}},
-                                                     normals::Vector{Vec{3,T}},
-                                                     faces::Vector{Tuple})
-    for face in faces
-        add!(acc, Triangle(vertices[face[1]],
-                           vertices[face[2]],
-                           vertices[face[3]],
-                           normals[face[1]],
-                           normals[face[2]],
-                           normals[face[3]]))
+function add_tris!(acc::A, vertices::Vector{SVector{3,T}},
+                   faces::Vector{NTuple{3}}) where {A<:Accelerator, T}
+    add_tris!(acc, faces) do (i,j,k)
+        Triangle((vertices[i], vertices[j], vertices[k]))
+    end
+end
+
+function add_tris!(acc::A, vertices::Vector{SVector{3,T}}, normals::Vector{SVector{3,T}},
+                   faces::Vector{NTuple{3}}) where {A<:Accelerator, T}
+    add_tris!(acc, faces) do (i,j,k)
+        Triangle((vertices[i], vertices[j], vertices[k]),
+                 (normals[i], normals[j], normals[k]))
     end
 end
 
@@ -49,9 +41,9 @@ storage ray-triangle intersection. Journal of Graphics Tools, 2(1),
 21–28. http://dx.doi.org/10.1080/10867651.1997.10487468
 =#
 
-function intersect(tri::Triangle, ray::Ray)
-    p = cross(ray.dir, tri.e2)
-    det = dot(tri.e1, p)
+function Base.intersect(ray::Ray{T}, tri::Triangle{T}) where T
+    p = cross(ray.dir, tri.e₂)
+    det = dot(tri.e₁, p)
 
     (det < eltype(tri.o)(1e-6)) && return false
 
@@ -61,15 +53,15 @@ function intersect(tri::Triangle, ray::Ray)
 
     (u < 0 || u > det) && return false
 
-    v = dot(ray.dir, cross(tv, tri.e1))
+    v = dot(ray.dir, cross(tv, tri.e₁))
     (v < 0 || u+v > det) && return false
 
     true
 end
 
-function intersect!(tri::Triangle, i::Intersection)
-    p = cross(i.ray.dir, tri.e2)
-    det = dot(tri.e1, p)
+function Base.intersect!(i::Intersection{T}, tri::Triangle{T}) where T
+    p = cross(i.ray.dir, tri.e₂)
+    det = dot(tri.e₁, p)
 
     (det < eltype(tri.o)(1e-6)) && return
 
@@ -79,32 +71,31 @@ function intersect!(tri::Triangle, i::Intersection)
 
     (u < 0 || u > det) && return
 
-    q = cross(tv, tri.e1)
+    q = cross(tv, tri.e₁)
     v = dot(i.ray.dir, q)
     (v < 0 || u+v > det) && return
 
-    inv_det = one(det)/det
-    t = dot(tri.e2, q) * inv_det
+    inv_det = inv(det)
+    t = dot(tri.e₂, q) * inv_det
     (t > i.t) && return
 
     u *= inv_det
     v *= inv_det
 
-    i.o = Nullable{Intersectable{eltype(tri.o)}}(tri)
+    i.o = tri
     i.t = t
     i.u = u
     i.v = v
 end
 
-function normal(tri::Triangle, p::Point{3}, i::Intersection)
+normal(tri::Triangle{T}, p::SVector{3,T}, i::Intersection{T}) where T =
     normalize((1 - i.u - i.v)*tri.na + i.u * tri.nb + i.v * tri.nc)
-end
 
-vertices(tri::Triangle) = (tri.o, tri.o + tri.e1, tri.o + tri.e2)
+vertices(tri::Triangle{T}) where T= (tri.o, tri.o + tri.e₁, tri.o + tri.e₂)
 
-function aabb{T<:AbstractFloat}(t::Triangle{T})
+function aabb(t::Triangle{T}) where T
     a,b,c = vertices(t)
-    AABB(min(min(a,b),c), max(max(a,b),c))
+    AABB(compmin(compmin(a,b),c), compmax(compmax(a,b),c))
 end
 
 export Triangle, add_tris!, intersect, intersect!, normal, aabb

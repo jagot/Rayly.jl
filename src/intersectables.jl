@@ -1,8 +1,5 @@
-using FixedSizeArrays
+abstract type Intersectable{T<:AbstractFloat} end
 
-abstract Intersectable{T}
-
-import Base.eltype
-eltype{T}(::Intersectable{T}) = T
+Base.eltype(::Intersectable{T}) where T = T
 
 export Intersectable, eltype

@@ -1,16 +1,11 @@
-using FixedSizeArrays
-using Images, ColorTypes
-using ProgressMeter
-
-function render{C<:Camera}(f::Function, cam::C, sampler = SingleSampler())
+function render(f::Function, cam::C, sampler = SingleSampler(T)) where {T,C<:Camera{T}}
     w,h = width(cam),height(cam)
     img = zeros(RGB{eltype(cam)}, (w,h))
 
+    W = weight(sampler)
     @showprogress "Rendering: " for i = 1:w
         for j = 1:h
-            img[i,j] = weight(sampler)*mapreduce(+, sampler(i,j)) do ij
-                f(cam[ij...])
-            end
+            img[i,j] = W*mapreduce(ij -> f(cam[ij...]), +, sampler(i,j))
         end
     end
 
