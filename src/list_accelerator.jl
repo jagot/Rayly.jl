@@ -1,19 +1,12 @@
-type ListAccelerator <: Accelerator
-    objs::Vector{Intersectable}
+mutable struct ListAccelerator{T} <: Accelerator{T}
+    objs::Vector{Intersectable{T}}
 end
-ListAccelerator() = ListAccelerator(Vector{Intersectable}())
+ListAccelerator(::Type{T}) where T = ListAccelerator(Vector{Intersectable{T}}())
 
-function intersect(acc::ListAccelerator, ray::Ray)
-    for o in acc.objs
-        intersect(o, ray) && return true
-    end
-    false
-end
+Base.intersect(ray::Ray{T}, acc::ListAccelerator{T}) where T =
+    any(o -> intersect(ray,o), acc.objs)
 
-function intersect!(acc::ListAccelerator, intersection::Intersection)
-    for o in acc.objs
-        intersect!(o, intersection)
-    end
-end
+Base.intersect!(intersection::Intersection{T}, acc::ListAccelerator{T}) where T =
+    foreach(o -> intersect!(intersection, o), acc.objs)
 
 export ListAccelerator, intersect, intersect!

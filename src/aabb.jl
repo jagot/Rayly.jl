@@ -1,16 +1,16 @@
-using FixedSizeArrays
-
-type AABB{T<:AbstractFloat} <: Intersectable{T}
-    pmin::Point{3,T}
-    pmax::Point{3,T}
+mutable struct AABB{T<:AbstractFloat} <: Intersectable{T}
+    pmin::SVector{3,T}
+    pmax::SVector{3,T}
 end
-AABB{T<:AbstractFloat}(t::T) = AABB(Point{3,T}(t),Point{3,T}(t))
-AABB(a::AABB, b::AABB) = AABB(min(a.pmin, b.pmin), max(a.pmax,b.pmax))
+AABB(t::T) where T = AABB(SVector(t,t,t),SVector(t,t,t))
+
+AABB(a::AABB{T}, b::AABB{T}) where T =
+    AABB(compmin(a.pmin,b.pmin), compmax(a.pmax,b.pmax))
 
 center(a::AABB) = (a.pmin+a.pmax)/2
 
 # http://psgraphics.blogspot.se/2016/02/new-simple-ray-box-test-from-andrew.html
-function intersect(ab::AABB, ray::Ray)
+function Base.intersect(ray::Ray{T}, ab::AABB{T}) where T
     for a = 1:3
         invD = 1.0/ray.dir[a]
         t0 = (ab.pmin[a] - ray.pos[a])* invD

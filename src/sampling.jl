@@ -1,32 +1,31 @@
-abstract Sampler
+abstract type Sampler{T<:AbstractFloat} end
 
-type SingleSampler
-end
+struct SingleSampler{T} <: Sampler{T} end
+SingleSampler(::Type{T}) where T = SingleSampler{T}()
 
-(::SingleSampler)(i, j) = [(i,j)]
+(::SingleSampler{T})(i::I, j::I) where {T,I} = [(convert(T,i),convert(T,j))]
 
 weight(::SingleSampler) = 1
 
-type JitteredSampler <: Sampler
-    samples
-    n
-    d
-    w
+struct JitteredSampler{T,I<:Integer} <: Sampler{T}
+    samples::I
+    n::I
+    d::T
+    w::T
 end
 
-function JitteredSampler(samples)
+function JitteredSampler(::Type{T}, samples::I) where {T<:AbstractFloat, I<:Integer}
     n = isqrt(samples)
-    JitteredSampler(n^2, n, 1.0/n, 1.0/samples)
+    JitteredSampler(n^2, n, one(T)/n, one(T)/samples)
 end
 
-function (s::JitteredSampler)(i, j)
-    hcat([[(i - 0.5 + (ii - 1 + rand())*s.d,
-            j - 0.5 + (jj - 1 + rand())*s.d)
+function (s::JitteredSampler{T,I})(i::I, j::I) where {T,I}
+    hcat([[(i - one(T)/2 + (ii - 1 + rand(T))*s.d,
+            j - one(T)/2 + (jj - 1 + rand(T))*s.d)
            for ii in 1:s.n]
           for jj in 1:s.n]...)
 end
 
-import Rayly.weight
 weight(s::JitteredSampler) = s.w
 
 export Sampler, SingleSampler, JitteredSampler, weight
