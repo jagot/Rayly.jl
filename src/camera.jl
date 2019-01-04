@@ -27,13 +27,15 @@ function SimpleCamera(pos::SVector{3,T},
     up,fwd = normalize(up), normalize(fwd)
     right = cross(up,fwd)
 
-    dx = inv(w_px - 1)
-    dy = inv(h_px - 1)
+    dx = one(T)/(w_px - 1)
+    dy = one(T)/(h_px - 1)
 
-    x₁ = d*fwd - 0.5w*right
-    x₂ = d*fwd + 0.5w*right
-    y₁ = d*fwd + 0.5h*up
-    y₂ = d*fwd - 0.5h*up
+    half = one(T)/2
+
+    x₁ = d*fwd - half*w*right
+    x₂ = d*fwd + half*w*right
+    y₁ = d*fwd + half*h*up
+    y₂ = d*fwd - half*h*up
 
     SimpleCamera(pos, up, fwd, right,
                  w, h, d,
