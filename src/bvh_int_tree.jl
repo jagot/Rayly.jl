@@ -29,9 +29,9 @@ function Base.intersect(ray::Ray{T}, n::BinaryIntNode{T}, tree::IntTree{T}) wher
 end
 
 function Base.intersect!(intersection::Intersection{T}, n::BinaryIntNode{T}, tree::IntTree{T}) where T
-    intersect(intersection.ray, tree.nodes[n].bbox) || return
-    intersect!(intersection, tree.nodes[n.left])
-    intersect!(intersection, tree.nodes[n.right])
+    intersect(intersection.ray, n.bbox) || return
+    intersect!(intersection, tree.nodes[n.left], tree)
+    intersect!(intersection, tree.nodes[n.right], tree)
 end
 
 function add_binary_node!(tree::IntTree{T}, left::Int, right::Int) where T
@@ -55,6 +55,13 @@ end
 
 Base.intersect(ray::Ray{T}, n::LeafIntNode{T}, tree::IntTree{T}) where T =
     any(o -> intersect(ray, o), n.objs)
+
+function Base.intersect!(intersection::Intersection{T}, n::LeafIntNode{T}) where T
+    foreach(o -> intersect!(intersection, o), n.objs)
+    is_hit(intersection)
+end
+Base.intersect!(intersection::Intersection{T}, n::LeafIntNode{T}, ::IntTree{T}) where T =
+    intersect!(intersection, n)
 
 function add_leaf_node!(tree::IntTree{T},
                         objs::AbstractVector{Intersectable{T}},

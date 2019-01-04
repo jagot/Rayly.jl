@@ -18,4 +18,6 @@ end
 
 Base.isless(a::Intersection, b::Intersection) = (a.t < b.t)
 
+is_hit(a::Intersection) = a.o != nothing
+
 export Intersection, normal
