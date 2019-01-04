@@ -12,4 +12,14 @@ function render(f::Function, cam::C, sampler = SingleSampler(T)) where {T,C<:Cam
     img
 end
 
+function render(cam::C, acc::A,
+                shade::Function, background::RGB{T},
+                args...) where {T,C<:Camera{T},A<:Accelerator}
+    render(cam, args...) do ray::Ray
+        hit = Intersection(ray)
+        intersect!(hit, acc)
+        is_hit(hit) ? shade(hit) : background
+    end
+end
+
 export render
