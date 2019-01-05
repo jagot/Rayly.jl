@@ -41,8 +41,8 @@ function Base.intersect!(intersection::Intersection{T}, acc::StackBVHAccelerator
         node = pop!(stack)
         if is_inner(node)
             if intersect(intersection.ray, node.bbox)
-                push!(stack, get(tree, node.left))
-                push!(stack, get(tree, node.right))
+                push!(stack, tree[node.left])
+                push!(stack, tree[node.right])
             end
         else
             intersect!(intersection, node)

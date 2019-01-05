@@ -13,8 +13,8 @@ function traverse_reduce(tree::Tree, node::Node,
                          binary::N, binop::Function = +,
                          leafop::Function = n -> one(N)) where {Tree<:AbstractTree, Node<:AbstractNode, N}
     if is_inner(node)
-        binary + binop(traverse_reduce(tree, get(tree, node.left), binary, binop, leafop),
-                       traverse_reduce(tree, get(tree, node.right), binary, binop, leafop))
+        binary + binop(traverse_reduce(tree, tree[node.left], binary, binop, leafop),
+                       traverse_reduce(tree, tree[node.right], binary, binop, leafop))
     else
         leafop(node)
     end

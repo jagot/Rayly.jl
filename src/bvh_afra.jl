@@ -14,17 +14,17 @@ for (fun,R,getray) in [(:intersect,:Ray,:identity), (:intersect!,:Intersection,:
         bitstack = zero(UI)
         while true
             if is_inner(node)
-                # lnode = get(tree, node.left)
-                # rnode = get(tree, node.right)
-                left = intersect($getray(ray), tree.nodes[node.left].bbox)
-                right = intersect($getray(ray), tree.nodes[node.right].bbox)
+                lnode = tree[node.left]
+                rnode = tree[node.right]
+                left = intersect($getray(ray), aabb(lnode))
+                right = intersect($getray(ray), aabb(rnode))
                 if left || right
                     bitstack <<= 1
                     if left ⊻ right
-                        node = tree.nodes[left ? node.left : node.right]
+                        node = left ? lnode : rnode
                     else
                         # node = nearest child
-                        node = tree.nodes[node.left] # lnode # Suboptimal
+                        node = lnode
                         bitstack |= 1
                     end
                     continue

@@ -8,7 +8,7 @@ IntTree{T,O,UI}() where {T,O,UI} = IntTree{T,O,UI}(Vector{IntNode{T,O}}())
 IntTree(::Type{T},::Type{O},::Type{UI}=UInt) where {T,O,UI} = IntTree{T,O,UI}()
 IntTree{T,O}() where {T,O} = IntTree(T,O)
 
-Base.get(tree::IntTree, node::Int) = tree.nodes[node]
+Base.getindex(tree::IntTree, node::Int) = tree.nodes[node]
 
 nodetype(::IntTree{T,O}) where {T,O} = IntNode{T,O}
 

@@ -28,8 +28,8 @@ function bvh_simple_build(::Type{Tree}, objs::Vector{O}) where {T<:AbstractFloat
     tree = Tree()
     bboxes = map(aabb, objs)
     centroids = map(center, bboxes)
-    root = get(tree, divide(tree, objs, bboxes, centroids,
-                            collect(eachindex(objs)), eachindex(objs), 1))
+    root = tree[divide(tree, objs, bboxes, centroids,
+                       collect(eachindex(objs)), eachindex(objs), 1)]
     BVH(tree, root)
 end
 

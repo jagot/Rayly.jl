@@ -1,7 +1,7 @@
 abstract type SimpleNode{T,O} <: AbstractNode{T,O} end
 
 struct SimpleTree{T,O} <: AbstractTree{T,O} end
-Base.get(::SimpleTree, node::N) where {N<:SimpleNode} = node
+Base.getindex(::SimpleTree, node::N) where {N<:SimpleNode} = node
 
 nodetype(::SimpleTree{T,O}) where {T,O} = SimpleNode{T,O}
 
