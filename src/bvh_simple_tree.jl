@@ -3,6 +3,8 @@ abstract type SimpleNode{T} <: AbstractNode{T} end
 struct SimpleTree{T} <: AbstractTree{T} end
 Base.get(::SimpleTree, node::N) where {N<:AbstractNode} = node
 
+nodetype(::SimpleTree{T}) where T = SimpleNode{T}
+
 Base.intersect(ray::Ray{T}, n::SimpleNode{T}, tree::SimpleTree{T}) where T =
     intersect(ray, n)
 
@@ -46,5 +48,10 @@ Base.intersect!(intersection::Intersection{T}, n::LeafNode{T}) where T =
 
 add_leaf_node!(::SimpleTree{T}, objs::VI, bbox::AABB{T}) where {T,VI<:AbstractVector{Intersectable{T}}} =
     LeafNode(objs[:], bbox)
+
+is_inner(::BinaryNode) = true
+is_leaf(::BinaryNode) = false
+is_inner(::LeafNode) = false
+is_leaf(::LeafNode) = true
 
 export SimpleTree

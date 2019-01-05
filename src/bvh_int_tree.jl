@@ -9,6 +9,8 @@ IntTree(::Type{T}) where T = IntTree{T}()
 
 Base.get(tree::IntTree, node::Int) = tree.nodes[node]
 
+nodetype(::IntTree{T}) where T = IntNode{T}
+
 parent(n::IntNode, t::IntTree) = t.nodes[n.parent]
 sibling(n::IntNode, t::IntTree) = t.nodes[n.sibling]
 
