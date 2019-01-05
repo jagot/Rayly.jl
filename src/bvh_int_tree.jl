@@ -78,4 +78,6 @@ is_leaf(::BinaryIntNode) = false
 is_inner(::LeafIntNode) = false
 is_leaf(::LeafIntNode) = true
 
+objects(n::LeafIntNode) = n.objs
+
 export IntTree

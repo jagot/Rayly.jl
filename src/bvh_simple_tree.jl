@@ -54,4 +54,6 @@ is_leaf(::BinaryNode) = false
 is_inner(::LeafNode) = false
 is_leaf(::LeafNode) = true
 
+objects(n::LeafNode) = n.objs
+
 export SimpleTree
