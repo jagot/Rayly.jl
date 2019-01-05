@@ -1,6 +1,8 @@
 mutable struct AABB{T<:AbstractFloat} <: Intersectable{T}
     pmin::SVector{3,T}
     pmax::SVector{3,T}
+    AABB(pmin::SVector{3,T}, pmax::SVector{3,T}) where T =
+        new{T}(compmin(pmin,pmax), compmax(pmin,pmax))
 end
 AABB(t::T) where T = AABB(SVector(t,t,t),SVector(t,t,t))
 
@@ -23,17 +25,17 @@ Base.show(io::IO, bbox::AABB{T}) where T =
 center(a::AABB) = (a.pmin+a.pmax)/2
 
 # http://psgraphics.blogspot.se/2016/02/new-simple-ray-box-test-from-andrew.html
-function Base.intersect(ray::Ray{T}, ab::AABB{T}) where T
+function Base.intersect(ray::Ray{T}, ab::AABB{T}, tₘᵢₙ::T=zero(T), tₘₐₓ::T=one(T)/zero(T)) where T
     for a = 1:3
-        invD = one(T)/ray.dir[a]
-        t0 = (ab.pmin[a] - ray.pos[a]) * invD
-        t1 = (ab.pmax[a] - ray.pos[a]) * invD
-        if invD < 0
-            t0,t1 = t1,t0
+        D⁻¹ = one(T)/ray.dir[a]
+        t₀ = (ab.pmin[a] - ray.pos[a]) * D⁻¹
+        t₁ = (ab.pmax[a] - ray.pos[a]) * D⁻¹
+        if D⁻¹ < 0
+            t₀,t₁ = t₁,t₀
         end
-        if t1 <= t0
-            return false
-        end
+        tₘᵢₙ = t₀ > tₘᵢₙ ? t₀ : tₘᵢₙ
+        tₘₐₓ = t₁ < tₘₐₓ ? t₁ : tₘₐₓ
+        tₘₐₓ ≤ tₘᵢₙ && return false
     end
     true
 end
