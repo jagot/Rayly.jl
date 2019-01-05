@@ -133,6 +133,12 @@ git-tree-sha1 = "b8045033701c3b10bf2324d7203404be7aef88ba"
 uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 version = "0.5.3"
 
+[[GeometryTypes]]
+deps = ["ColorTypes", "FixedPointNumbers", "IterTools", "LinearAlgebra", "StaticArrays", "Test"]
+git-tree-sha1 = "28b193e14466beecf928449e0f8505ff6de3709d"
+uuid = "4d00f742-c7ba-57c2-abde-4428a4b178cb"
+version = "0.7.2"
+
 [[Graphics]]
 deps = ["Colors", "Compat", "NaNMath"]
 git-tree-sha1 = "e3ead4211073d4117a0d2ef7d1efc5c8092c8412"
@@ -261,6 +267,12 @@ version = "0.2.1"
 [[Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+
+[[MeshIO]]
+deps = ["ColorTypes", "FileIO", "GeometryTypes", "Printf", "Test"]
+git-tree-sha1 = "3e01e12c4c626578a9d47fac0d15c9fe8dad5139"
+uuid = "7269a6da-0436-5bbc-96c2-40638cbb6118"
+version = "0.3.1"
 
 [[Missings]]
 deps = ["Dates", "InteractiveUtils", "SparseArrays", "Test"]

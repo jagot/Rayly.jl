@@ -24,8 +24,8 @@ function divide(tree::Tree,
     add_binary_node!(tree, left, right)
 end
 
-function bvh_simple_build(::Type{Tree}, objs::Vector{O}) where {T<:AbstractFloat,Tree<:AbstractTree{T},O<:Intersectable{T}}
-    tree = Tree()
+function bvh_simple_build(::Type{Tree}, objs::Vector{O}) where {T<:AbstractFloat,Tree<:AbstractTree,O<:Intersectable{T}}
+    tree = Tree{O}()
     bboxes = map(aabb, objs)
     centroids = map(center, bboxes)
     root = tree[divide(tree, objs, bboxes, centroids,
