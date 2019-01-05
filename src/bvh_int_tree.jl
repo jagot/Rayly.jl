@@ -1,11 +1,12 @@
 # This type keeps track of parents/siblings using integer indices
 abstract type IntNode{T} <: AbstractNode{T} end
 
-struct IntTree{T} <: AbstractTree{T}
+struct IntTree{T,UI<:Unsigned} <: AbstractTree{T}
     nodes::Vector{IntNode{T}}
 end
-IntTree{T}() where T = IntTree{T}(Vector{IntNode{T}}())
-IntTree(::Type{T}) where T = IntTree{T}()
+IntTree{T,UI}() where {T,UI} = IntTree{T,UI}(Vector{IntNode{T}}())
+IntTree(::Type{T},::Type{UI}=UInt) where {T,UI} = IntTree{T,UI}()
+IntTree{T}() where {T} = IntTree(T)
 
 Base.get(tree::IntTree, node::Int) = tree.nodes[node]
 

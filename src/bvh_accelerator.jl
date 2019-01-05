@@ -1,10 +1,16 @@
-abstract type BVHAccelerator{T,B<:BVH{T}} <: Accelerator{T} end
-
-struct RecursiveBVHAccelerator{T,B} <: BVHAccelerator{T,B}
+struct BVHAccelerator{T,B<:BVH{T},strategy} <: Accelerator{T}
     bvh::B
 end
-RecursiveBVHAccelerator(bvh::B) where {T,B<:BVH{T}} =
-    RecursiveBVHAccelerator{T,B}(bvh)
+BVHAccelerator(bvh::B,strategy::Symbol) where {T,B<:BVH{T}} = BVHAccelerator{T,B,strategy}(bvh)
+
+function Base.show(io::IO, ::MIME"text/plain", acc::Acc) where {Acc<:BVHAccelerator}
+    write(io, "$Acc\n- ")
+    show(io, acc.bvh)
+end
+
+# * Recursive traversal
+
+const RecursiveBVHAccelerator{T,B} = BVHAccelerator{T,B,:recursive}
 
 function Base.intersect(ray::Ray{T}, acc::RecursiveBVHAccelerator{T}) where T
     tree = acc.bvh.tree
@@ -18,11 +24,9 @@ function Base.intersect!(intersection::Intersection{T}, acc::RecursiveBVHAcceler
     intersect!(intersection, node, tree)
 end
 
-struct StackBVHAccelerator{T,B} <: BVHAccelerator{T,B}
-    bvh::B
-end
-StackBVHAccelerator(bvh::B) where {T,B<:BVH{T}} =
-    StackBVHAccelerator{T,B}(bvh)
+# * Stack traversal
+
+const StackBVHAccelerator{T,B} = BVHAccelerator{T,B,:stack}
 
 function Base.intersect(ray::Ray{T}, acc::StackBVHAccelerator{T}) where T
     tree = acc.bvh.tree
@@ -46,4 +50,4 @@ function Base.intersect!(intersection::Intersection{T}, acc::StackBVHAccelerator
     end
 end
 
-export RecursiveBVHAccelerator, StackBVHAccelerator
+export BVHAccelerator, RecursiveBVHAccelerator, StackBVHAccelerator

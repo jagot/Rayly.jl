@@ -5,13 +5,10 @@
 # Graphics Forum. http://dx.doi.org/10.1111/cgf.12259
 #
 
-struct AfraBVHAccelerator{T,B<:BVH{T,IntTree{T}},UI<:Unsigned} <: BVHAccelerator{T,B}
-    bvh::B
-end
-AfraBVHAccelerator(bvh::B, ::Type{UI}=UInt64) where {T,B<:BVH{T},UI} = AfraBVHAccelerator{T,B,UI}(bvh)
+const AfraBVHAccelerator{T,B<:BVH{T,IntTree{T,<:Unsigned}}} = BVHAccelerator{T,B,:afra}
 
 for (fun,R,getray) in [(:intersect,:Ray,:identity), (:intersect!,:Intersection,:(r->r.ray))]
-    @eval function Base.$fun(ray::$R{T}, acc::AfraBVHAccelerator{T,B,UI}) where {T,B,UI}
+    @eval function Base.$fun(ray::$R{T}, acc::AfraBVHAccelerator{T,B}) where {T,UI,B<:BVH{T,IntTree{T,UI}}}
         tree = acc.bvh.tree
         node = acc.bvh.root
         bitstack = zero(UI)
