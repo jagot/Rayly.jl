@@ -21,11 +21,11 @@ struct Ray{T<:AbstractFloat}
         new{T}(pos, normalize(dir))
 end
 
-abstract type Accelerator{T<:AbstractFloat} end
+abstract type Intersectable{T<:AbstractFloat} end
+Base.eltype(::Intersectable{T}) where T = T
 
-export Ray, Accelerator
+abstract type Accelerator{T<:AbstractFloat,O<:Intersectable{T}} end
 
-include("intersectables.jl")
 include("intersection.jl")
 include("aabb.jl")
 include("sphere.jl")
@@ -45,7 +45,9 @@ include("utils.jl")
 include("scene.jl")
 
 # Default BVH builder is bvh_simple_build
-Base.convert(::Type{Tree}, objs::Vector{Intersectable{T}}) where {T,Tree<:AbstractTree{T}} =
+Base.convert(::Type{Tree}, objs::Vector{O}) where {T,Tree<:AbstractTree{T},O<:Intersectable{T}} =
     bvh_simple_build(Tree, objs)
+
+export Ray, Intersectable, Accelerator
 
 end # module

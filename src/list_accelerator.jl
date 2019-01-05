@@ -1,7 +1,11 @@
-mutable struct ListAccelerator{T} <: Accelerator{T}
-    objs::Vector{Intersectable{T}}
+mutable struct ListAccelerator{T,O} <: Accelerator{T,O}
+    objs::Vector{O}
 end
-ListAccelerator(::Type{T}) where T = ListAccelerator(Vector{Intersectable{T}}())
+ListAccelerator(objs::Vector{O}) where {T,O<:Intersectable{T}} =
+    ListAccelerator{T,O}(objs)
+
+ListAccelerator(::Type{O}) where {T,O<:Intersectable{T}} =
+    ListAccelerator(Vector{O}())
 
 Base.intersect(ray::Ray{T}, acc::ListAccelerator{T}) where T =
     any(o -> intersect(ray,o), acc.objs)

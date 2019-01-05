@@ -1,20 +1,20 @@
-abstract type AbstractNode{T<:AbstractFloat} <: Intersectable{T} end
-abstract type AbstractTree{T<:AbstractFloat} end
+abstract type AbstractNode{T<:AbstractFloat,O<:Intersectable{T}} <: Intersectable{T} end
+abstract type AbstractTree{T<:AbstractFloat,O} end
 
-mutable struct BVH{T,Tree<:AbstractTree{T},N<:AbstractNode{T}}
+mutable struct BVH{T,O,Tree<:AbstractTree{T,O},Node<:AbstractNode{T,O}}
     tree::Tree
-    root::N
+    root::Node
 end
 
-aabb(n::N) where {N<:AbstractNode} = n.bbox
-Base.intersect(ray::Ray{T}, n::N) where {T,N<:AbstractNode{T}} = intersect(ray, n.bbox)
+aabb(n::Node) where {Node<:AbstractNode} = n.bbox
+Base.intersect(ray::Ray{T}, n::Node) where {T,Node<:AbstractNode{T}} = intersect(ray, n.bbox)
 
 function traverse_reduce(tree::Tree, node::Node,
                          binary::N, binop::Function = +,
                          leafop::Function = n -> one(N)) where {Tree<:AbstractTree, Node<:AbstractNode, N}
     if is_inner(node)
         binary + binop(traverse_reduce(tree, get(tree, node.left), binary, binop, leafop),
-                       traverse_reduce(tree, get(tree, node.right),binary, binop, leafop))
+                       traverse_reduce(tree, get(tree, node.right), binary, binop, leafop))
     else
         leafop(node)
     end

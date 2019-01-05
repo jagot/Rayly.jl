@@ -1,10 +1,11 @@
 function divide(tree::Tree,
-                objs::Vector{Intersectable{T}},
+                objs::Vector{O},
                 bboxes::Vector{AABB{T}},
                 centroids::Vector{SVector{3,T}},
                 indices::Vector{I},
                 selection::UR,
                 axis::I) where {T<:AbstractFloat,Tree<:AbstractTree{T},
+                                O<:Intersectable{T},
                                 I<:Integer,UR<:AbstractUnitRange{I}}
     # Calculate bbox encompassing all objects
     bbox = AABB(view(bboxes, selection))
@@ -23,7 +24,7 @@ function divide(tree::Tree,
     add_binary_node!(tree, left, right)
 end
 
-function bvh_simple_build(::Type{Tree}, objs::Vector{Intersectable{T}}) where {T<:AbstractFloat,Tree<:AbstractTree{T}}
+function bvh_simple_build(::Type{Tree}, objs::Vector{O}) where {T<:AbstractFloat,Tree<:AbstractTree{T},O<:Intersectable{T}}
     tree = Tree()
     bboxes = map(aabb, objs)
     centroids = map(center, bboxes)

@@ -14,9 +14,9 @@ end
 
 function render(cam::C, acc::A,
                 shade::Function, background::RGB{T},
-                args...) where {T,C<:Camera{T},A<:Accelerator}
+                args...) where {T,C<:Camera{T},O,A<:Accelerator{T,O}}
     render(cam, args...) do ray::Ray
-        hit = Intersection(ray)
+        hit = Intersection(ray, O)
         intersect!(hit, acc)
         is_hit(hit) ? shade(hit) : background
     end
