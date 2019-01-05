@@ -1,4 +1,15 @@
 @testset "AABB" begin
+    @testset "Construction" begin
+        for T in [Float16, Float32, Float64]
+            e = one(T)
+            z = zero(T)
+            a = AABB(SVector(-2e,-2e,-2e),SVector(-e,-e,-e))
+            b = AABB(SVector(-2e,-2e,-2e),SVector(-3e,-3e,-3e))
+            c = AABB(a, b)
+            @test c.pmin == SVector(-3e,-3e,-3e)
+            @test c.pmax == SVector(-e,-e,-e)
+        end
+    end
     @testset "Intersections" begin
         for T in [Float16, Float32, Float64]
             e = one(T)

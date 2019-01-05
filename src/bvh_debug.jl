@@ -15,8 +15,8 @@ function print_bboxes(io::IO, tree::Tree, node::Node, maxdepth::N) where {Tree<:
     println(io, aabb(node))
     (maxdepth -= 1) == 0 && return
     is_inner(node) && print_block(io) do io
-        print_bboxes(io, tree, get(tree, node.left), maxdepth)
-        print_bboxes(io, tree, get(tree, node.right), maxdepth)
+        print_bboxes(io, tree, tree[node.left], maxdepth)
+        print_bboxes(io, tree, tree[node.right], maxdepth)
     end
 end
 

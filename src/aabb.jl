@@ -11,7 +11,7 @@ AABB(a::AABB{T}, b::AABB{T}) where T =
 
 function AABB(bboxes::VA) where {T,VA<:AbstractVector{AABB{T}}}
     # Calculate bbox encompassing all objects
-    bbox = AABB(zero(T))
+    bbox = first(bboxes)
     for b in bboxes
         bbox = AABB(bbox, b)
     end
