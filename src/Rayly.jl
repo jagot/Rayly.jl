@@ -2,10 +2,13 @@ module Rayly
 
 using LinearAlgebra
 using StaticArrays
-using Images, ColorTypes
+using Statistics
+using ColorTypes
 using ProgressMeter
 using FileIO
+import GeometryTypes: HomogenousMesh
 using Images
+using Random
 
 for (n,f) in [(:compmin, :min), (:compmax, :max)]
     @eval $n(a::SVector{3,T}, b::SVector{3,T}) where T =
@@ -20,20 +23,39 @@ struct Ray{T<:AbstractFloat}
         new{T}(pos, normalize(dir))
 end
 
-abstract type Accelerator{T<:AbstractFloat} end
+abstract type Intersectable{T<:AbstractFloat} end
+Base.eltype(::Intersectable{T}) where T = T
 
-export Ray, Accelerator
+abstract type Accelerator{T<:AbstractFloat,O<:Intersectable{T}} end
 
-include("intersectables.jl")
 include("intersection.jl")
+
 include("aabb.jl")
 include("sphere.jl")
 include("triangle.jl")
+include("scene.jl")
+
 include("camera.jl")
 include("list_accelerator.jl")
+include("bvh.jl")
+include("bvh_simple_tree.jl")
+include("bvh_int_tree.jl")
+include("bvh_simple_builder.jl")
+include("bvh_accelerator.jl")
+include("bvh_afra.jl")
+include("bvh_debug.jl")
 include("sampling.jl")
 include("render.jl")
 include("utils.jl")
-include("scene.jl")
+
+# Default BVH builder is bvh_simple_build
+Base.convert(::Type{Tree}, scene::Scene{O}) where {T,Tree<:AbstractTree{T},O<:Intersectable{T}} =
+    bvh_simple_build(Tree, scene.objs)
+
+export Ray, Intersectable, Accelerator
+
+function __init__()
+    add_format(format"RSC", "RSC", ".rsc", [:Rayly])
+end
 
 end # module
