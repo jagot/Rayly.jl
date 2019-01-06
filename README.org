@@ -1,5 +1,9 @@
 #+TITLE: Rayly
 
+[[https://travis-ci.org/jagot/Rayly.jl][https://travis-ci.org/jagot/Rayly.jl.svg?branch=master]]
+[[https://ci.appveyor.com/project/jagot/rayly-jl][https://img.shields.io/appveyor/ci/jagot/rayly-jl.svg?logo=appveyor]]
+[[https://codecov.io/gh/jagot/Rayly.jl][https://codecov.io/gh/jagot/Rayly.jl/branch/master/graph/badge.svg]]
+
 Simple raytracer.
 
 [[/examples/simple.png]]
