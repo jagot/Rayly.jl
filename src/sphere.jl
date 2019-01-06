@@ -7,6 +7,11 @@ end
 \[d=-[\mathbf{l}\cdot(\mathbf{o}-\mathbf{c})]\pm\sqrt{[\mathbf{l}\cdot(\mathbf{o}-\mathbf{c})]^2-||\mathbf{o}-\mathbf{c}||^2+r^2}\]
 =#
 
+function extents(sphere::Sphere{T}) where T
+    e = √(3one(T))
+    [(pos[i]-e,pos[i]+e) for i=1:3]
+end
+
 function Base.intersect(ray::Ray{T}, sphere::Sphere{T}) where T
     oc = ray.pos - sphere.pos
     loc = dot(ray.dir, oc)
@@ -29,4 +34,4 @@ normal(sphere::Sphere{T}, p::SVector{3,T}, ::Intersection{T}) where T =
 
 aabb(s::Sphere{T}) where T = AABB{T}(s.pos-s.radius,s.pos+s.radius)
 
-export Sphere, eltype, intersect, calc_intersect, normal, aabb
+export Sphere, extents, normal, aabb

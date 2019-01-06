@@ -1,5 +1,5 @@
 using Rayly
-using Base.Test
+using StaticArrays
+using Test
 
-# write your own tests here
-@test 1 == 1
+include("aabb.jl")

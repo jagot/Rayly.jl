@@ -14,6 +14,11 @@ Triangle(ABC::NTuple{3,SVector{3,T}},
          normal::SVector{3,T}=cross(ABC[2]-ABC[1], ABC[3]-ABC[1])) where T =
              Triangle(ABC, (normal, normal, normal))
 
+function extents(tri::Triangle)
+    a,b,c=vertices(tri)
+    [extrema([a[i],b[i],c[i]]) for i=1:3]
+end
+
 function add_tris!(fun::Function, acc::A, faces::Vector{NTuple{3}}) where {A<:Accelerator}
     for face in faces
         add!(acc, fun(face...))
@@ -98,4 +103,4 @@ function aabb(t::Triangle{T}) where T
     AABB(compmin(compmin(a,b),c), compmax(compmax(a,b),c))
 end
 
-export Triangle, add_tris!, intersect, intersect!, normal, aabb
+export Triangle, extents, add_tris!, normal, aabb
