@@ -30,6 +30,14 @@ function Base.append!(scene::Scene{O}, objs::Vector{O}) where {T,O<:Intersectabl
     scene
 end
 
+function extents(scene::Scene)
+    e = extents.(scene.objs)
+    join_extents(a,b) = [(min(a[i][1],b[i][1]),max(a[i][2],b[i][2])) for i=1:3]
+    reduce(join_extents, e, init=e[1])
+end
+
+Images.center(scene::Scene) = mean.(extents(scene))
+
 # ** Random scenes
 rand_point(::Type{T}) where T = SVector{3}(2rand(T)-1,2rand(T)-1,2rand(T)-1)
 
@@ -116,4 +124,4 @@ function FileIO.load(s::Stream{format"RSC"})
     Scene{O}(objs)
 end
 
-export Scene, save, load
+export Scene, extents, save, load

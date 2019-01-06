@@ -22,7 +22,7 @@ AABB(objs::AbstractVector{Intersectable{T}}) where T = AABB(map(aabb, objs))
 Base.show(io::IO, bbox::AABB{T}) where T =
     write(io, "$(T)⟦", join(map(i -> "$(bbox.pmin[i])..$(bbox.pmax[i])", 1:3), "; "), "⟧")
 
-center(a::AABB) = (a.pmin+a.pmax)/2
+Images.center(a::AABB) = (a.pmin+a.pmax)/2
 
 # http://psgraphics.blogspot.se/2016/02/new-simple-ray-box-test-from-andrew.html
 function Base.intersect(ray::Ray{T}, ab::AABB{T}, tₘᵢₙ::T=zero(T), tₘₐₓ::T=one(T)/zero(T)) where T
